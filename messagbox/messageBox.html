@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh">
+	<head>
+		<meta charset="UTF-8"> 
+		<link rel="stylesheet" type="text/css" href="style.css">
+	</head>
+	<body>
+		<div id="messageBox">
+		</div>
+	</body>
+	<script type="text/javascript">
+		function MessageBox(){
+			this.messageBoxElement = null;
+			this.moduleMessage = null;
+			this.width;
+			this.height;
+			this.maxNumber;
+			this.addMessage=function(message){
+				var messageElement = this.moduleMessage.cloneNode(true);
+				messageElement.innerHTML = message;
+				console.log(messageElement);
+				this.messageBoxElement.insertBefore(messageElement,this.messageBoxElement.firstChild);
+				if(this.messageBoxElement.children[this.maxNumber-1])
+					this.messageBoxElement.children[this.maxNumber-1].className += " hiding"// 清除多余的消息
+				this.clearMessages();
+			}
+			this.clearMessages = function(){
+				if(this.messageBoxElement.children.length > this.maxNumber){
+					this.messageBoxElement.removeChild(this.messageBoxElement.lastChild);
+				}
+			}
+			this.render = function(){
+				this.moduleMessage = document.createElement("div");
+				var style = "width:"+this.width+"px;";
+				style += ("height:"+this.height+"px;");
+				style += ("margin-top:-"+this.height+"px;");
+				this.moduleMessage.setAttribute('style',style);
+				this.moduleMessage.className = "message";
+
+				style = ("height:"+(this.height+2)*this.maxNumber+"px;");
+				style += "overflow:hidden;";
+				this.messageBoxElement.setAttribute('style',style);
+			}
+			this.setMessageBox=function(messageBoxElement){
+				this.messageBoxElement = messageBoxElement;
+			}
+			this.setStyle = function(style){
+				if(style){
+					if(style.width)
+						this.width = style.width;
+					else
+						this.width = 300;
+
+					if(style.height)
+						this.height = style.height;
+					else
+						this.height = 30;
+
+					if(style.maxNumber)
+						this.maxNumber = style.maxNumber;
+					else
+						this.maxNumber = 2;
+				}else{
+					this.width = 300;
+					this.height = 50;
+					this.maxNumber = 2;
+				}
+			}
+		}
+		var mb = new MessageBox();
+		mb.setMessageBox(document.getElementById("messageBox"));
+		mb.setStyle({maxNumber:4});
+		mb.render();
+	</script>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh">
+	<head>
+		<meta charset="UTF-8"> 
+		<link rel="stylesheet" type="text/css" href="style.css">
+	</head>
+	<body>
+		<ul class="speakingBox" id="a">
+<!-- 			<li class="speaking"><div class="user">小明：</div><div class="words">今天天是个好天气</div></li>
+			<li class="speaking"><div class="user">一万年以后：</div><div class="words">今天天是个好天气</div></li>
+			<li class="speaking"><div class="user">一百万年月之后：</div><div class="words">今天天是个好天气</div></li>
+			<li class="speaking"><div class="user">小明阿斯顿发斯蒂芬撒地方：</div><div class="words">今天天是个好天气</div></li> -->
+		</ul>
+		<script type="text/javascript">
+			function SpeakingBox(speakingBox){
+				this.speakingBox = speakingBox;
+				this.moduleSpeaking = null;
+				this.style = {
+					width:500,
+					height:50,
+					number:10
+				}
+				this.setStyle = function(style){
+					if(style){
+						if(style.width){
+							this.style.width = style.width;
+						}
+						if(style.height){
+							this.style.height = style.height;
+						}
+						if(style.number){
+							this.style.number = style.number;
+						}
+					}
+				}
+				this.render = function(){
+					// 样式化盒子
+					this.speakingBox.className = 'speakingBox'
+					this.speakingBox.style.width = (this.width+'px');
+					this.speakingBox.style.height = (this.height*this.style.number+'px');
+					// 构造speaking样例
+					this.moduleSpeaking = document.createElement('li');
+					var ms = this.moduleSpeaking;
+					ms.className = 'speaking';
+					ms.innerHTML = '<div class="user"></div><div class="words"></div>';
+				}
+				this.pushSpeaking = function(user,words){
+					// 组装新的speaking
+					var newsp = this.moduleSpeaking.cloneNode(true);
+					var userEle = newsp.firstElementChild;
+					var wordsEle = newsp.lastElementChild;
+					userEle.innerHTML = user;
+					wordsEle.innerHTML = words;
+					// 为新speaking留出空间
+					if(this.speakingBox.children.length>=this.style.number){
+						console.log("out");
+						var firstsp = this.speakingBox.firstElementChild;
+						console.log(firstsp);
+						var marginTop = Number.parseInt(firstsp.style.marginTop);
+						if(marginTop){
+							firstsp.style.marginTop = (marginTop-this.style.height)+'px'
+						}else{
+							firstsp.style.marginTop = -1*this.style.height+'px';
+						}
+					}
+					// 插入speaking
+					this.speakingBox.appendChild(newsp);
+				}
+			}
+			var spb = new SpeakingBox(document.getElementById('a'));
+			spb.setStyle({number:3});
+			spb.render();
+		</script>
+	</body>
+</html>

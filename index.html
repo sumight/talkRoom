@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh">
+	<head>
+		<meta charset="UTF-8"> 
+		<!-- <link rel="stylesheet" type="text/css" href="style.css"> -->
+		<style type="text/css">
+        #showBox{
+            outline: 1px solid;
+
+            height: 500px;
+            width: 400px;
+            margin: 0 auto;
+            margin-top: -67px;
+}
+        #inputBox{
+            font-size: 2em;
+            display: none;
+            position: fixed;
+            top: 0px;
+            left: 200px;
+        }
+        #loginBox{
+            font-size: 3em;
+            display: block;
+            margin: 0 auto;
+            margin-top: -248px;
+        }
+        #roomNameBox{
+            font-size: 3em; display: block; margin: 0 auto; 
+            margin-top: -248px;
+            display: none;
+        }
+        #messageBox{
+
+		}
+        .hide{
+            display: none!important;
+        }
+        .show{
+            display: block!important;
+        }
+    @-webkit-keyframes showMoment{
+        0% {opacity:0;}
+        20% {opacity:1;}
+        80% {opacity:1;}
+        100% {opacity:0;}
+    }
+    .showMoment{
+        -webkit-animation-name: showMoment;
+        -webkit-animation-duration: 2s;
+    }
+ul,ol{
+	padding: 0;
+}
+.speakingBox{
+    list-style: none;
+    overflow: hidden;
+}
+.speaking{
+    display: -webkit-box;
+    height: 50px;
+    -webkit-box-orient: horizontal;
+    -moz-box-orient: horizontal;
+    /*动画*/
+    -webkit-animation-name: pushSpeaking;
+	-webkit-animation-duration: 0.5s;
+	-webkit-animation-fill-mode: forwards;
+	-webkit-animation-timing-function: ease-out;
+}
+.speaking:first-child{
+	margin-top: 0px;
+	-webkit-transition: margin-top 0.5s;
+}
+.user{
+    width: 100px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    text-align: right;
+}
+.words:before{
+	content:":" 
+}
+.words{
+    width: 400px;
+}
+@-webkit-keyframes pushSpeaking{
+	from {margin-left: -500px}
+	to {margin-left: 0px}
+}
+.messageBox{
+
+}
+.message{
+	-webkit-animation-name: pushMessage;
+	-webkit-animation-duration: 0.5s;
+	-webkit-animation-fill-mode: forwards;
+	-webkit-animation-timing-function: ease-out;
+	font-size: 2em;
+}
+@-webkit-keyframes pushMessage{
+	to {margin-top:2px;}
+}
+.hiding{
+	-webkit-animation-name: hiding;
+	-webkit-animation-duration: 0.5s;
+	-webkit-animation-fill-mode: forwards;
+	-webkit-animation-timing-function: ease-out;
+}
+@-webkit-keyframes hiding{
+	from {margin-top: 2px}
+	to {opacity:0;margin-top: 2px}
+}
+		</style>
+	</head>
+	<body>
+		<div id="messageBox">
+			
+		</div>
+		<div id="showBox">
+
+		</div>
+		<input type="text" id="inputBox" />
+		<input type="text" id="loginBox" placeholder="你的名字"/>
+		<input type="text" id="roomNameBox" placeholder="房间名"/>
+		<script src="/socket.io/socket.io.js"></script>
+		<script type="text/javascript">
+			var socket = io.connect('http://localhost:8080');
+			var showBox = document.getElementById("showBox");
+			var inputBox = document.getElementById("inputBox");
+			var loginBox = document.getElementById("loginBox");
+			var roomNameBox = document.getElementById("roomNameBox");
+			// 初始化消息框
+			var mb = new MessageBox();
+			mb.setMessageBox(document.getElementById("messageBox"));
+			mb.setStyle({maxNumber:2});
+			mb.render();
+			// 初始化说话框
+			var sp = new SpeakingBox(document.getElementById("showBox"));
+			sp.render();
+
+			socket.on("message",function(data){
+				var mbox = document.getElementById('messageBox')
+				mb.addMessage(data);
+			})
+			socket.on("talk",function(data){
+				sp.pushSpeaking('',data)
+			})
+			window.onkeypress = function(event){
+				if(event.keyCode === 13){
+					// 如果没有显示
+					inputBox.setAttribute("class","show");
+					inputBox.focus();
+				}
+			}
+			inputBox.onkeypress = function(event){
+				if(event.keyCode === 13){
+					// 如果输入框已经显示
+					var words = inputBox.value;
+					socket.emit("talk",words);
+					inputBox.value = "";
+					inputBox.setAttribute("class","");
+					if(event.stopPropagation){
+						event.stopPropagation();
+					}else{
+						event.cancelBubble();
+					}
+				}
+			}
+			loginBox.onkeypress = function(event){
+				if(event.keyCode === 13){
+					console.log("login");
+					var username = loginBox.value;
+					socket.emit("login",username);
+					loginBox.setAttribute("class","hide");
+					roomNameBox.setAttribute("class","show");
+					roomNameBox.focus();
+					if(event.stopPropagation){
+						event.stopPropagation();
+					}else{
+						event.cancelBubble();
+					}
+				}
+			}
+			roomNameBox.onkeypress = function(event){
+				if(event.keyCode === 13){
+					var roomname = roomNameBox.value;
+					socket.emit("join",roomname);
+					roomNameBox.calssName = "hide";
+					roomNameBox.setAttribute("class","hide");
+					if(event.stopPropagation){
+						event.stopPropagation();
+					}else{
+						event.cancelBubble();
+					}
+				}
+			}
+			function SpeakingBox(speakingBox){
+				this.speakingBox = speakingBox;
+				this.moduleSpeaking = null;
+				this.style = {
+					width:500,
+					height:50,
+					number:10
+				}
+				this.setStyle = function(style){
+					if(style){
+						if(style.width){
+							this.style.width = style.width;
+						}
+						if(style.height){
+							this.style.height = style.height;
+						}
+						if(style.number){
+							this.style.number = style.number;
+						}
+					}
+				}
+				this.render = function(){
+					// 样式化盒子
+					this.speakingBox.className = 'speakingBox'
+					this.speakingBox.style.width = (this.width+'px');
+					this.speakingBox.style.height = (this.height*this.style.number+'px');
+					// 构造speaking样例
+					this.moduleSpeaking = document.createElement('li');
+					var ms = this.moduleSpeaking;
+					ms.className = 'speaking';
+					ms.innerHTML = '<div class="user"></div><div class="words"></div>';
+				}
+				this.pushSpeaking = function(user,words){
+					// 组装新的speaking
+					var newsp = this.moduleSpeaking.cloneNode(true);
+					var userEle = newsp.firstElementChild;
+					var wordsEle = newsp.lastElementChild;
+					userEle.innerHTML = user;
+					wordsEle.innerHTML = words;
+					// 为新speaking留出空间
+					if(this.speakingBox.children.length>=this.style.number){
+						console.log("out");
+						var firstsp = this.speakingBox.firstElementChild;
+						console.log(firstsp);
+						var marginTop = Number.parseInt(firstsp.style.marginTop);
+						if(marginTop){
+							firstsp.style.marginTop = (marginTop-this.style.height)+'px'
+						}else{
+							firstsp.style.marginTop = -1*this.style.height+'px';
+						}
+					}
+					// 插入speaking
+					this.speakingBox.appendChild(newsp);
+				}
+			}
+		function MessageBox(){
+			this.messageBoxElement = null;
+			this.moduleMessage = null;
+			this.width;
+			this.height;
+			this.maxNumber;
+			this.addMessage=function(message){
+				var messageElement = this.moduleMessage.cloneNode(true);
+				messageElement.innerHTML = message;
+				console.log(messageElement);
+				this.messageBoxElement.insertBefore(messageElement,this.messageBoxElement.firstChild);
+				if(this.messageBoxElement.children[this.maxNumber-1])
+					this.messageBoxElement.children[this.maxNumber-1].className += " hiding"// 清除多余的消息
+				this.clearMessages();
+			}
+			this.clearMessages = function(){
+				if(this.messageBoxElement.children.length > this.maxNumber){
+					this.messageBoxElement.removeChild(this.messageBoxElement.lastChild);
+				}
+			}
+			this.render = function(){
+				this.moduleMessage = document.createElement("div");
+				var style = "width:"+this.width+"px;";
+				style += ("height:"+this.height+"px;");
+				style += ("margin-top:-"+this.height+"px;");
+				this.moduleMessage.setAttribute('style',style);
+				this.moduleMessage.className = "message";
+
+				style = ("height:"+(this.height+2)*this.maxNumber+"px;");
+				style += "overflow:hidden;";
+				this.messageBoxElement.setAttribute('style',style);
+			}
+			this.setMessageBox=function(messageBoxElement){
+				this.messageBoxElement = messageBoxElement;
+			}
+			this.setStyle = function(style){
+				if(style){
+					if(style.width)
+						this.width = style.width;
+					else
+						this.width = 300;
+
+					if(style.height)
+						this.height = style.height;
+					else
+						this.height = 30;
+
+					if(style.maxNumber)
+						this.maxNumber = style.maxNumber;
+					else
+						this.maxNumber = 2;
+				}else{
+					this.width = 300;
+					this.height = 50;
+					this.maxNumber = 2;
+				}
+			}
+		}
+ 		</script>
+	</body>
+</html>

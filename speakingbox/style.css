@@ -1,0 +1,39 @@
+ul,ol{
+	padding: 0;
+}
+.speakingBox{
+    list-style: none;
+    overflow: hidden;
+}
+.speaking{
+    display: -webkit-box;
+    height: 50px;
+    -webkit-box-orient: horizontal;
+    -moz-box-orient: horizontal;
+    /*动画*/
+    -webkit-animation-name: pushSpeaking;
+	-webkit-animation-duration: 0.5s;
+	-webkit-animation-fill-mode: forwards;
+	-webkit-animation-timing-function: ease-out;
+}
+.speaking:first-child{
+	margin-top: 0px;
+	-webkit-transition: margin-top 0.5s;
+}
+.user{
+    width: 100px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    text-align: right;
+}
+.words:before{
+	content:":" 
+}
+.words{
+    width: 400px;
+}
+@-webkit-keyframes pushSpeaking{
+	from {margin-left: -500px}
+	to {margin-left: 0px}
+}

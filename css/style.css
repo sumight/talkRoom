@@ -1,0 +1,52 @@
+        #showBox{
+            outline: 1px solid;
+
+            height: 500px;
+            width: 400px;
+            margin: 0 auto;
+            margin-top: -67px;
+}
+        #inputBox{
+            font-size: 2em;
+            display: none;
+            position: fixed;
+            top: 0px;
+            left: 200px;
+        }
+        #loginBox{
+            font-size: 3em;
+            display: block;
+            margin: 0 auto;
+            margin-top: -248px;
+        }
+        #roomNameBox{
+            font-size: 3em; display: block; margin: 0 auto; 
+            margin-top: -248px;
+            display: none;
+        }
+        #messageBox{
+            outline: 1px solid;
+            height: 40px;
+            margin: 0 auto;
+            width: 400px;
+            text-align: center;
+            margin-top: 72px;
+            font-size: 2em;
+            opacity: 0;
+}
+        .hide{
+            display: none!important;
+        }
+        .show{
+            display: block!important;
+        }
+    @-webkit-keyframes showMoment{
+        0% {opacity:0;}
+        20% {opacity:1;}
+        80% {opacity:1;}
+        100% {opacity:0;}
+    }
+    .showMoment{
+        -webkit-animation-name: showMoment;
+        -webkit-animation-duration: 5s;
+    }
